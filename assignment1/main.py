@@ -11,10 +11,13 @@ def main():
     input_file = config.INPUT_FILE
     output_file = config.OUTPUT_FILE
 
-    capture = cv2.VideoCapture(input_file)
-    fps = float(capture.get(cv2.CAP_PROP_FPS))
-    h = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    w = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
+    capture_part1 = cv2.VideoCapture(config.INPUT_FILE_PART1)
+    capture_part2 = cv2.VideoCapture(config.INPUT_FILE_PART2)
+    # capture_part3 = cv2.VideoCapture(config.INPUT_FILE_part3)
+
+    fps = float(capture_part1.get(cv2.CAP_PROP_FPS))
+    h = int(capture_part1.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    w = int(capture_part1.get(cv2.CAP_PROP_FRAME_WIDTH))
 
     logging.debug("FPS = " + str(fps))
     logging.debug("h = " + str(h))
@@ -25,8 +28,11 @@ def main():
     output_video_writer = cv2.VideoWriter(output_file, fourcc, fps, (w, h))
     logging.debug("Is Opened [True]? " + str(output_video_writer.isOpened()))
 
-    basic = part1.Part1(capture, image_counter, output_video_writer)
+    basic = part1.Part1(capture_part1, image_counter, output_video_writer)
     basic.process()
+
+    detection = part2.Part2(capture_part2, image_counter, output_video_writer)
+    detection.process()
     # part2()
     # part3()
 
@@ -34,7 +40,8 @@ def main():
     logging.debug("Is Opened ? " + str(output_video_writer.isOpened()))
 
     output_video_writer.release()
-    capture.release()
+    capture_part1.release()
+    capture_part2.release()
     cv2.destroyAllWindows()
 
 main()

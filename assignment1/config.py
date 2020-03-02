@@ -1,3 +1,9 @@
-INPUT_FILE = "D:/Videos/downsampled.mp4"
+INPUT_FILE_PART1 = "D:/Videos/part1_downsampled.mp4"
+INPUT_FILE_PART2 = "D:/Videos/part2_downsampled.mp4"
+INPUT_FILE_PART3 = "D:/Videos/part3_downsampled.mp4"
 OUTPUT_FILE = "D:/Videos/test.mp4"
 FOURCC = 'mp4v'
+THRESHOLD_COLOR_SPACE = "HSV"
+THRESHOLD_LOW = 140  # used in binary frame of gray images (not sure if will be used)
+THRESHOLD_HIGH = 185  # used in binary frames of gray images (not sure if will be used)
+BYPASS_BILATERAL = False
