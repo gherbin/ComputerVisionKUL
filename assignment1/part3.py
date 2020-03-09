@@ -45,8 +45,10 @@ class Part3(PartTemplate):
                 logging.debug("Processed part 3 = " + str(round(100 * self.image_counter / 20 / fps, 2)))
 
                 m_frame = frame
+                # if 0 <= self.image_counter < 1 * fps:
+                #     m_frame = frame
                 if 0 <= self.image_counter < config.PART3_SWITCH_SCENE_0 * fps and \
-                        not config.BYPASS_JUNGLE:
+                        not config.BYPASS_JUGGLE:
                     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
                     # cv2.imshow("HSV", hsv)
                     low_H = 19
@@ -60,7 +62,7 @@ class Part3(PartTemplate):
                     param1 = 500
                     param2 = 24
                     minDist = 46
-                    minRadius = 10
+                    minRadius = 11
                     maxRadius = 40
 
                     image_file = config.TEMPLATE_FILE_CIRCLE_FIRE
@@ -70,41 +72,15 @@ class Part3(PartTemplate):
                     r = frame_threshold
 
                     for i in range(1, 5):
-                        # r = cv2.GaussianBlur(r, (7, 7), 0)
-                        # r = cv2.GaussianBlur(r, (25,25),0)
                         r = cv2.medianBlur(r, 11)
-                        # r = cv2.bilateralFilter(r,5, 100, 5)
-                        # kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
-                        # r = cv2.filter2D(r, -1, kernel)
 
                     gray = r
                     kernel_ellipse = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
                     kernel = np.ones((5, 5), np.uint8)
 
-                    closing = cv2.morphologyEx(gray, cv2.MORPH_CLOSE, kernel_ellipse)
-                    dilatation = cv2.morphologyEx(gray, cv2.MORPH_DILATE, kernel_ellipse)
-                    opening = cv2.morphologyEx(gray, cv2.MORPH_OPEN, kernel_ellipse)
-
-                    # cv2.imshow("Dilatation ", dilatation)
-                    # cv2.imshow("CLOSION ", closing)
-                    # cv2.imshow("Modification1 ", thresholds - closing)
-                    # cv2.imshow("Modification2 ", thresholds - opening)
-                    mask = gray - dilatation
-                    mask2 = gray - opening
-
-                    gray = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
-                    # new_frame = gray.copy()
-                    #
-                    # new_frame[mask2 > 0] = (0, 0, 255)
-                    # new_frame[mask > 0] = (0, 255, 0)
-
-                    # cv2.imshow("New_Frame", new_frame)
-                    new_gray = gray.copy()
-                    new_gray[mask2 > 0] = (0, 0, 0)
-                    new_gray[mask > 0] = (0, 0, 0)
-                    cv2.imshow("New_Gray", new_gray)
-
-                    new_gray = cv2.cvtColor(new_gray, cv2.COLOR_BGR2GRAY)
+                    my_kernel = cv2.getStructuringElement(cv2.MORPH_CROSS,(13,13))
+                    closing = cv2.morphologyEx(gray, cv2.MORPH_CLOSE, my_kernel)
+                    new_gray = closing
 
                     circles = cv2.HoughCircles(new_gray,
                                                cv2.HOUGH_GRADIENT,
@@ -158,7 +134,8 @@ class Part3(PartTemplate):
                     hough_line = [1, np.pi / 180, 140, None, 0, 0]
 
                     flag_goal = False
-                    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+                    f_frame = cv2.medianBlur(frame,7)
+                    hsv = cv2.cvtColor(f_frame, cv2.COLOR_BGR2HSV)
 
                     circles = self.get_circles(hsv, hsv_ball, hough_ball)
 
@@ -210,7 +187,7 @@ class Part3(PartTemplate):
 
                 # logging.debug("M_FRAME_SHAPE = " + str(m_frame.shape))
                 # logging.debug("M_FRAME_DTYPE" + str(m_frame.dtype))
-                cv2.imshow("Part3_m_frame",m_frame)
+                # cv2.imshow("Part3_m_frame",m_frame)
                 self.video_writer.write(m_frame)
                 self.image_counter += 1
 
@@ -269,7 +246,7 @@ class Part3(PartTemplate):
             r_line = cv2.medianBlur(r_line, 7)
 
         gray_line = r_line.copy()
-        kernel = np.ones((11, 11), np.uint8)
+        kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (11, 11))
         closing = cv2.morphologyEx(gray_line, cv2.MORPH_CLOSE, kernel)
         gray_line = np.bitwise_not(closing)
         cv2.imshow("New_Gray", gray_line)
@@ -295,23 +272,27 @@ class Part3(PartTemplate):
             r_ball = cv2.medianBlur(r_ball, 5)
 
         gray_ball = r_ball.copy()
-        kernel_ellipse = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
+        kernel_ellipse = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (13, 13))
         kernel = np.ones((5, 5), np.uint8)
+        # my_kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (13, 13))
+        # closing = cv2.morphologyEx(gray, cv2.MORPH_CLOSE, my_kernel)
         closing = cv2.morphologyEx(gray_ball, cv2.MORPH_CLOSE, kernel_ellipse)
-        dilatation = cv2.morphologyEx(gray_ball, cv2.MORPH_DILATE, kernel_ellipse)
-        opening = cv2.morphologyEx(gray_ball, cv2.MORPH_OPEN, kernel_ellipse)
+        # dilatation = cv2.morphologyEx(gray_ball, cv2.MORPH_DILATE, kernel_ellipse)
+        # opening = cv2.morphologyEx(gray_ball, cv2.MORPH_OPEN, kernel_ellipse)
 
         # cv2.imshow("Dilatation ", dilatation)
         # cv2.imshow("CLOSION ", closing)
         # cv2.imshow("Modification1 ", thresholds - closing)
         # cv2.imshow("Modification2 ", thresholds - opening)
-        mask = gray_ball - dilatation
-        mask2 = gray_ball - opening
+        # mask = gray_ball - dilatation
+        # mask2 = gray_ball - opening
+        #
+        # gray_ball[mask2 > 0] = 0
+        # gray_ball[mask > 0] = 0
+        # cv2.imshow("New_Gray", gray_ball)
+        # cv2.imshow("DIFF", gray_ball - r_ball)
 
-        gray_ball[mask2 > 0] = 0
-        gray_ball[mask > 0] = 0
-        cv2.imshow("New_Gray", gray_ball)
-        cv2.imshow("DIFF", gray_ball - r_ball)
+        gray_ball = closing
 
         circles = cv2.HoughCircles(gray_ball,
                                    cv2.HOUGH_GRADIENT,

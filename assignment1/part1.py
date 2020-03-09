@@ -74,56 +74,72 @@ class Part1(PartTemplate):
 
                     if 4*fps < self.image_counter <= 6 * fps:
                         #  Gaussian filters
-                        ks = ((7,7),(17,17))
-                        sigmaX = 0
+                        ks = ((3,27),(7,7),(17,17))
+                        sigmaX = (1.5, 1.5, 3)
+                        sigmaY = (4.5, 1.5, 3)
 
                         hloc = frame.shape[0] // 2
                         wloc = frame.shape[1] // 2
+                        l2_prep = cv2.resize(bgr_noisy, (wloc, hloc))
                         r1_prep = cv2.resize(bgr_noisy, (wloc, hloc))
                         r2_prep = cv2.resize(bgr_noisy, (wloc, hloc))
 
-                        r1 = self.apply_gaussian(r1_prep, ks[0], sigmaX)
-                        legend_r1 = "Gaussian Filter: k=" + str(ks[0]) + ", sig" + str(sigmaX)
+                        l2 = self.apply_gaussian(l2_prep, ks[0], sigmaX=sigmaX[0], sigmaY=sigmaY[0])
+                        # legend_l2 = "Gaussian Filter: k=" + str(ks[0])  # + ", sig" + str(sigmaX)
+                        legend_l2 = "Asymmetric (larger in Y dir)"
 
-                        r2 = self.apply_gaussian(r2_prep, ks[1], sigmaX)
-                        legend_r2 = "Gaussian Filter: k=" + str(ks[1]) + ", sig" + str(sigmaX)
+                        r1 = self.apply_gaussian(r1_prep, ks[1], sigmaX=sigmaX[1], sigmaY=sigmaY[1])
+                        # legend_r1 = "Gaussian Filter: k=" + str(ks[1])  # + ", sig" + str(sigmaX)
+                        legend_r1 = "symmetric, medium gaussian (k = " + str(ks[1]) + ")"
 
-                        # kernel = cv2.getGaussianKernel(ksize=ks[0][0], sigma=sigmaX)
+                        r2 = self.apply_gaussian(r2_prep, ks[2], sigmaX=sigmaX[2], sigmaY=sigmaY[2])
+                        # legend_r2 = "Gaussian Filter: k=" + str(ks[2])  # + ", sig" + str(sigmaX)
+                        legend_r2 = "symmetric, large gaussian (k = " + str(ks[2]) + ")"
 
                         legend_frame = "Original"
-                        legend_noisy = "Noisy"
+                        legend_noisy = "Noisy original"
 
                         # new_height = h // 2
                         # new_width = w // 2
                         m_frame = self.display_frames(frame.shape,
-                                                      (frame, bgr_noisy, r1, r2),
-                                                      (legend_frame, legend_noisy, legend_r1, legend_r2))
+                                                      (bgr_noisy, l2, r1, r2),
+                                                      (legend_noisy, legend_l2 , legend_r1, legend_r2))
 
                     elif 6*fps < self.image_counter <= 8*fps and not config.BYPASS_BILATERAL:
                         hloc = frame.shape[0] // 2
                         wloc = frame.shape[1] // 2
+                        l2_prep = cv2.resize(bgr_noisy, (wloc, hloc))
                         r1_prep = cv2.resize(bgr_noisy, (wloc, hloc))
                         r2_prep = cv2.resize(bgr_noisy, (wloc, hloc))
                         d = -1  # computed from sigmaSpace
-                        sigmaColor = 10
-                        sigmaSpace = 10
+
+                        sigmaColor = 5
+                        sigmaSpace = 15
+                        l2 = l2_prep
+                        for i in range(1, config.NUMBER_BILATERAL_FILTER_APPLICATION):
+                            l2 = cv2.bilateralFilter(l2, d, sigmaColor, sigmaSpace)
+                        legend_l2 = "Bilateral F., sigma_space (" + \
+                                    str(sigmaSpace) + ") > sigma_color (" + str(sigmaColor) + ")"
+                        sigmaColor = 8
+                        sigmaSpace = 8
                         r1 = r1_prep
-                        for i in range(1, 2):
+                        for i in range(1, config.NUMBER_BILATERAL_FILTER_APPLICATION):
                             r1 = cv2.bilateralFilter(r1, d, sigmaColor, sigmaSpace)
-                        legend_r1 = "Bilateral filter (x2), both sigmas = " + str(sigmaColor)
+                        legend_r1 = "Bilateral F., sigma_space (" + \
+                                    str(sigmaSpace) + ") == sig_color (" + str(sigmaColor) + ")"
 
                         sigmaColor = 50
                         sigmaSpace = 5
                         r2 = r2_prep
-                        for i in range(1, 3):
+                        for i in range(1, config.NUMBER_BILATERAL_FILTER_APPLICATION):
                             r2 = cv2.bilateralFilter(r2, d, sigmaColor, sigmaSpace)
-                        legend_r2 = "Bilateral filter (x3), sig_color = " + str(sigmaColor) + ", sig_space = " + str(
-                            sigmaSpace)
+                        legend_r2 = "Bilateral F., sigma_color (" + \
+                                    str(sigmaColor) + ") >> sigma_space (" + str(sigmaSpace)+")"
 
                         m_frame = self.display_frames(frame.shape,
-                                                      (frame, bgr_noisy, r1, r2),
-                                                      ("Original", "Noisy", legend_r1, legend_r2))
-                        # self.write(m_frame, "TO BE MODIFIED", (w // 2, h // 2), (0, 0, 255), 3, 3)
+                                                      (bgr_noisy, l2, r1, r2),
+                                                      ("Noisy original", legend_l2, legend_r1, legend_r2))
+
                     elif 8*fps < self.image_counter <= 12*fps and not config.BYPASS_BILATERAL:
                         # m_frame = cv2.bilateralFilter(bgr_noisy, d=-1, sigmaColor=5, sigmaSpace=30)
                         ks = ((7, 7), (17, 17))
@@ -143,24 +159,28 @@ class Part1(PartTemplate):
                         legend_l2 = "Gaussian : k=" + str(ks[1])  # + ", sig" + str(sigmaX)
 
                         d = -1  # computed from sigmaSpace
-                        sigmaColor = 10
-                        sigmaSpace = 10
+                        sigmaColor = 8
+                        sigmaSpace = 8
                         r1 = r1_prep
-                        for i in range(1, 2):
+                        for i in range(1, config.NUMBER_BILATERAL_FILTER_APPLICATION):
                             r1 = cv2.bilateralFilter(r1, d, sigmaColor, sigmaSpace)
-                        legend_r1 = "Bilateral filter (x2), both sigmas = " + str(sigmaColor)
+                        legend_r1 = "Bilateral filter (x" + str(config.NUMBER_BILATERAL_FILTER_APPLICATION) + \
+                                    "), both sigmas = " + str(sigmaColor)
 
                         sigmaColor = 50
                         sigmaSpace = 5
                         r2 = r2_prep
-                        for i in range(1, 3):
+                        for i in range(1, config.NUMBER_BILATERAL_FILTER_APPLICATION):
                             r2 = cv2.bilateralFilter(r2, d, sigmaColor, sigmaSpace)
-                        legend_r2 = "Bilateral filter (x3), sig_color = " + str(sigmaColor) + \
-                                    ", sig_space = " + str(sigmaSpace)
+                        legend_r2 = "Bilateral filter (x" + str(config.NUMBER_BILATERAL_FILTER_APPLICATION) + \
+                                    "), sigma color = " + str(sigmaColor) + \
+                                    ", sigma space = " + str(sigmaSpace)
 
                         m_frame = self.display_frames(frame.shape,
                                                       (l1, l2, r1, r2),
                                                       (legend_l1, legend_l2, legend_r1, legend_r2))
+                        self.write(m_frame, "blurry", (w//3, h//2 + 50), (0,0,255))
+                        self.write(m_frame, "cartoon-like", (3*w//4, h//2 + 50), (0,0,255))
                         # cv2.imshow("Test 10-12", m_frame)
                     else:
                         subtitle_text = "Bypass - Normal Image"
@@ -181,7 +201,7 @@ class Part1(PartTemplate):
                         new_frame = self.apply_gaussian(frame, (7,7), 10)
 
                         if config.THRESHOLD_COLOR_SPACE is "HSV":
-                            hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+                            hsv = cv2.cvtColor(new_frame, cv2.COLOR_BGR2HSV)
                             low_H = 0
                             low_S = 146
                             low_V = 62
@@ -214,7 +234,7 @@ class Part1(PartTemplate):
                             raise NotImplementedError("Wrong color space in config")
                     elif 17 * fps < self.image_counter <= 20 * fps:
                         # in HSV, grab by the color
-                        # use of morphological operations in order to improve grabbin
+                        # use of morphological operations in order to improve grabbing
                         yellow = (30, 255, 255)
 
                         low_H = 0
@@ -225,12 +245,8 @@ class Part1(PartTemplate):
                         high_V = 255
 
                         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-                        frame_threshold = cv2.inRange(hsv, (low_H, low_S, low_V), (high_H, high_S, high_V))
-                        # gaussian = cv2.GaussianBlur(src=hsv, ksize=(3, 3), sigmaX=1, sigmaY=1)
-                        # gaussian = hsv
                         thresholds = cv2.inRange(hsv, (low_H, low_S, low_V), (high_H, high_S, high_V))
-                        kernel_ellipse = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-                        kernel = np.ones((5, 5), np.uint8)
+                        kernel_ellipse = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
                         closing = cv2.morphologyEx(thresholds, cv2.MORPH_CLOSE, kernel_ellipse)
                         # cv2.imshow("test binary2", closing)
                         dilatation = cv2.morphologyEx(thresholds, cv2.MORPH_DILATE, kernel_ellipse)
@@ -242,11 +258,13 @@ class Part1(PartTemplate):
                         # cv2.imshow("Modification2 ", thresholds - opening)
                         mask = thresholds - dilatation
                         mask2 = thresholds - opening
+                        mask3 = thresholds - closing
                         thresholds = cv2.cvtColor(thresholds, cv2.COLOR_GRAY2BGR)
                         new_frame = thresholds
 
                         new_frame[mask > 0] = (0, 255, 0)
                         new_frame[mask2 > 0] = (0, 0, 255)
+                        new_frame[mask3 > 0] = (255, 0, 0)
 
                         # cv2.imshow("Modification3 ", new_frame)
                         m_frame = new_frame

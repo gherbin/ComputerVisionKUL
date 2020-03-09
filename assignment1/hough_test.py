@@ -2,22 +2,65 @@ import sys
 import cv2
 import numpy as np
 dp = 2
-param1 = 255
+param1 = 500
 param2 = 24
 minDist = 46
-minRadius = 57
-maxRadius = 62
+minRadius = 35
+maxRadius = 48
 
 sigma_color = 100
 sigma_space = 5
 video = True
+image_file = "D:/Videos/part3/circle_fire.png"
+small_image = cv2.imread(image_file)
+template_image = small_image.copy()
+
+
+def draw_fire(image, template, circle_center, radius_detected):
+    radius_template = 220
+    scale = radius_detected/radius_template
+    new_width = int(template.shape[1] * scale)
+    new_height = int(template.shape[0] * scale)
+    new_size = (new_width, new_height)
+    resized_template = cv2.resize(template, new_size)
+    for i in range(0, resized_template.shape[0]):
+        for j in range(0, resized_template.shape[1]):
+            thresh = sum(resized_template[i,j])
+            if thresh > 50:
+                coord_width = circle_center[0] + i - new_width//2 - 3
+                coord_height = circle_center[1] + j - new_height//2 + 2
+                if 0 < coord_width < image.shape[0] and \
+                    0 < coord_height < image.shape[1]:
+                    image[coord_width, coord_height] = resized_template[i, j]
+    return image
+
+def get_circle_id(point, point_1, point_2, point_3):
+    print("Points : " + str([point, point_1, point_2, point_3]))
+    id = 0
+    point = np.array(point, dtype=float)
+    point_1 = np.array(point_1, dtype=float)
+    point_2 = np.array(point_2, dtype=float)
+    point_3 = np.array(point_3, dtype=float)
+    dist1 = np.linalg.norm(point - point_1, ord=1)
+    dist2 = np.linalg.norm(point - point_2, ord=1)
+    dist3 = np.linalg.norm(point - point_3, ord=1)
+    print("Distances : " + str([dist1, dist2, dist3]))
+    if dist1 <= dist2 and dist1 <= dist3:
+        id = 1
+    elif dist2 <= dist1 and dist2 <= dist3:
+        id = 2
+    elif dist3 <= dist2 and dist3 <= dist2:
+        id = 3
+    else:
+        print("Cannot decide : " + str([dist1, dist2, dist3]))
+    print("ID = " + str(id))
+    return id
 
 def on_dp_trackbar(val):
     global dp
     dp = val
     dp = max(val, 1)
     cv2.setTrackbarPos("dp", "", dp)
-
 
 def on_param1_trackbar(val):
     global param1
@@ -50,45 +93,13 @@ def on_maxRadius_trackbar(val):
     maxRadius = max(val, 5)
     cv2.setTrackbarPos("minDist", "", maxRadius)
 
-"HoughCircles(image, method, dp, minDist, circles=None, param1=None, param2=None, minRadius=None, maxRadius=None):"
-"""
-    HoughCircles(image, method, dp, minDist[, circles[, param1[, param2[, minRadius[, maxRadius]]]]]) -> circles
-    .   @brief Finds circles in a grayscale image using the Hough transform.
-    .   
-    .   The function finds circles in a grayscale image using a modification of the Hough transform.
-    .   
-    .   Example: :
-    .   @include snippets/imgproc_HoughLinesCircles.cpp
-    .   
-    .   @note Usually the function detects the centers of circles well. However, it may fail to find correct
-    .   radii. You can assist to the function by specifying the radius range ( minRadius and maxRadius ) if
-    .   you know it. Or, you may set maxRadius to a negative number to return centers only without radius
-    .   search, and find the correct radius using an additional procedure.
-    .   
-    .   @param image 8-bit, single-channel, grayscale input image.
-    .   @param circles Output vector of found circles. Each vector is encoded as  3 or 4 element
-    .   floating-point vector \f$(x, y, radius)\f$ or \f$(x, y, radius, votes)\f$ .
-    .   @param method Detection method, see #HoughModes. Currently, the only implemented method is #HOUGH_GRADIENT
-    .   @param dp Inverse ratio of the accumulator resolution to the image resolution. For example, if
-    .   dp=1 , the accumulator has the same resolution as the input image. If dp=2 , the accumulator has
-    .   half as big width and height.
-    .   @param minDist Minimum distance between the centers of the detected circles. If the parameter is
-    .   too small, multiple neighbor circles may be falsely detected in addition to a true one. If it is
-    .   too large, some circles may be missed.
-    .   @param param1 First method-specific parameter. In case of #HOUGH_GRADIENT , it is the higher
-    .   threshold of the two passed to the Canny edge detector (the lower one is twice smaller).
-    .   @param param2 Second method-specific parameter. In case of #HOUGH_GRADIENT , it is the
-    .   accumulator threshold for the circle centers at the detection stage. The smaller it is, the more
-    .   false circles may be detected. Circles, corresponding to the larger accumulator values, will be
-    .   returned first.
-    .   @param minRadius Minimum circle radius.
-    .   @param maxRadius Maximum circle radius. If <= 0, uses the maximum image dimension. If < 0, returns
-    .   centers without finding the radius.
-    .   
-    .   @sa fitEllipse, minEnclosingCircle
-    """
 default_file = "D:/Videos/Test/test2.png"
 video_file = "D:/Videos/part2_ball.mp4"
+# video_file = "D:/Videos/part3/part3-1_downsampled_juggling.mp4"
+# video_file = "D:/Videos/part3/part3-1_downsampled_MovingBalls_and_juggling.mp4"
+# video_file = "D:/Videos/part3/part3-1_downsampled.mp4"
+
+# video_file = "D:/Videos/part3/part3-2_downsampled.mp4"
 # default_file = "D:/Videos/Test/im_test.png"
 if video:
     filename = video_file
@@ -111,12 +122,32 @@ cv2.createTrackbar("minRadius", window_detection_name, minRadius, 800, on_minRad
 cv2.createTrackbar("maxRadius", window_detection_name, maxRadius, 800, on_maxRadius_trackbar)
 counter = 0
 
+center_positions = []
+center_1_position = [(433,248)]
+center_2_position = [(551,208)]
+center_3_position = [(402,247)]
+
+center_1_position = [(137, 364)]
+center_2_position = [(367, 365)]
+center_3_position = [(523, 368)]
+
+# np.append(center_positions,(100,100))
+
+
+
 while True:
     if video:
         ret, frame = cap.read()
         if frame is None:
             counter +=1
             print("Loop = " + str(counter))
+            center_positions = []
+            center_1_position = [(433, 248)]
+            center_2_position = [(551, 208)]
+            center_3_position = [(402, 247)]
+            center_1_position = [(137, 364)]
+            center_2_position = [(367, 365)]
+            center_3_position = [(523, 368)]
             cap = cv2.VideoCapture(video_file)
             ret, frame = cap.read()
         new_src = frame
@@ -144,10 +175,10 @@ while True:
 
 
     # RGB - Blue
-    cv2.imshow('B-RGB', blue)
-    cv2.imshow('G-RGB', green)
-    cv2.imshow('R-RGB', red)
-    cv2.imshow('Yellowish', yellow)
+    # cv2.imshow('B-RGB', blue)
+    # cv2.imshow('G-RGB', green)
+    # cv2.imshow('R-RGB', red)
+    # cv2.imshow('Yellowish', yellow)
 
     # gray_not_filtered = cv2.cvtColor(blue, cv2.COLOR_BGR2GRAY)
     # r = gray_not_filtered
@@ -161,24 +192,59 @@ while True:
     high_S = 222
     low_V = 104
     high_V = 182
+
+    # low_H = 21
+    # high_H = 71
+    # low_S = 0
+    # high_S = 255
+    # low_V = 0
+    # high_V = 180
+    #
+    # low_H = 0
+    # high_H = 180
+    # low_S = 0
+    # high_S = 255
+    # low_V = 0
+    # high_V = 247
+
     frame_threshold = cv2.inRange(hsv, (low_H, low_S, low_V), (high_H, high_S, high_V))
-    r = frame_threshold
-
+    # r = frame_threshold
     for i in range(1, 5):
-        # r = cv2.GaussianBlur(r, (7, 7), 0)
-        # r = cv2.GaussianBlur(r, (25,25),0)
-        r = cv2.medianBlur(r, 7)
-        # r = cv2.bilateralFilter(r,5, 100, 5)
-        # kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
-        # r = cv2.filter2D(r, -1, kernel)
+        frame_threshold = cv2.medianBlur(frame_threshold, 7)
 
-    gray = r
-    cv2.imshow("grayFiltered", gray)
-    edges = cv2.Canny(r, param1, param1/2)
+    gray = frame_threshold.copy()
+    kernel_ellipse = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
+    # kernel = np.ones((5, 5), np.uint8)
 
-    cv2.imshow("canny", edges)
+    closing = cv2.morphologyEx(gray, cv2.MORPH_CLOSE, kernel_ellipse)
+    dilatation = cv2.morphologyEx(gray, cv2.MORPH_DILATE, kernel_ellipse)
+    opening = cv2.morphologyEx(gray, cv2.MORPH_OPEN, kernel_ellipse)
 
-    circles = cv2.HoughCircles(gray,
+    # new_gray = dilatation
+
+    cv2.imshow("Dilatation ", dilatation)
+    cv2.imshow("CLOSION ", closing)
+    cv2.imshow("Opening", opening)
+    # cv2.imshow("Modification1 ", thresholds - closing)
+    # cv2.imshow("Modification2 ", thresholds - opening)
+    mask = gray - dilatation
+    mask2 = gray - opening
+
+    gray = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
+    # new_frame = gray.copy()
+    #
+    # new_frame[mask2 > 0] = (0, 0, 255)
+    # new_frame[mask > 0] = (0, 255, 0)
+
+    # cv2.imshow("New_Frame", new_frame)
+    new_gray = gray.copy()
+    new_gray[mask2 > 0] = (0,0,0)
+    new_gray[mask > 0] = (0,0,0)
+    cv2.imshow("New_Gray", new_gray)
+
+    new_gray = cv2.cvtColor(new_gray, cv2.COLOR_BGR2GRAY)
+
+    circles = cv2.HoughCircles(new_gray,
                               cv2.HOUGH_GRADIENT,
                               dp=dp,
                               minDist= minDist,
@@ -186,8 +252,10 @@ while True:
                               param2=param2,
                               minRadius=minRadius,
                               maxRadius=maxRadius)
+
     if circles is not None:
         circles = np.uint16(np.around(circles))
+        # print(len(circles[0,:]))
         for i in circles[0, :]:
             center = (i[0], i[1])
             # circle center
@@ -195,10 +263,32 @@ while True:
             # circle outline
             radius = i[2]
             cv2.circle(new_src, center, radius, (200, 0, 255), 2)
+            # center_positions.append(center)
+            draw_circles = False
+            circle_id = get_circle_id(center, center_1_position[-1], center_2_position[-1], center_3_position[-1])
+            if draw_circles:
+                new_center = (i[1], i[0])
+                if circle_id == 1:
+                    center_1_position=[center]
+                    cv2.circle(new_src, center, radius, (0,255,0), -1)
+                    draw_fire(new_src, template_image, new_center, radius)
+                elif circle_id == 2:
+                    center_2_position=[center]
+                    cv2.circle(new_src, center, radius, (0,0,255), -1)
+                    draw_fire(new_src, template_image, new_center, radius)
 
-    cv2.imshow("gray", gray)
+                elif circle_id == 3:
+                    center_3_position=[center]
+                    cv2.circle(new_src, center, radius, (255,0,0), -1)
+                    draw_fire(new_src, template_image, new_center, radius)
+
+                else:
+                    print("center not added")
+
     cv2.imshow(window_detection_name, new_src)
-
     key = cv2.waitKey(30)
+
     if key == ord('q') or key == 27:
         break
+
+

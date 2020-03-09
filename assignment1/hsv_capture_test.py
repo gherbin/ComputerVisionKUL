@@ -69,6 +69,7 @@ def on_high_V_thresh_trackbar(val):
 
 
 video_file = "D:/Videos/part2_ball.mp4"
+video_file = "D:/Videos/part3/part3-2_downsampled.mp4"
 
 cap = cv.VideoCapture(video_file)
 cv.namedWindow(window_capture_name)

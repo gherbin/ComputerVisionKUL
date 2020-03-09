@@ -14,11 +14,14 @@ class PartTemplate:
         self.video_writer = video_writer
 
     def write(self, image, text, pos, color=(255, 255, 255), fontScale=1, thickness=1, draw_background=True):
+        if text is None:
+            return
+
         # pos = (x,y) => center of the text to be written
         font_scale = 1
         font = cv2.FONT_HERSHEY_SIMPLEX
         label_pos = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, fontScale, thickness)
-        margin = 10
+        margin_y = 3
         text_width = label_pos[0][0]
         text_height = label_pos[0][1]
         # (0,0) ---> x
@@ -30,11 +33,11 @@ class PartTemplate:
         # print(text_width)
         # print(text_height)
         _x = pos[0] - text_width//2
-        _y = pos[1] - text_height//2 - margin
+        _y = pos[1] - text_height//2
         # set the rectangle background to white
         if draw_background:
             rectangle_bgr = (0, 0, 0)
-            box_coords = ((_x, _y), (_x + text_width + 2, _y - text_height - 2))
+            box_coords = ((_x, _y + margin_y), (_x + text_width + 2, _y - text_height - 2))
             cv2.rectangle(image, box_coords[0], box_coords[1], rectangle_bgr, cv2.FILLED)
 
         cv2.putText(image, text, (_x, _y),
@@ -77,10 +80,10 @@ class PartTemplate:
             result = np.concatenate((tmp_left, tmp_right), axis=1)
             if subtitles is not None:
                 pos = ((w//2, h),(w//2, 2*h), (3*w//2, h), (3*w//2, 2*h))
-                self.write(result, subtitles[0], pos[0], (0, 128, 0), 0.5, 1)
-                self.write(result, subtitles[1], pos[1], (0, 128, 0), 0.5, 1)
-                self.write(result, subtitles[2], pos[2], (0, 128, 0), 0.5, 1)
-                self.write(result, subtitles[3], pos[3], (0, 128, 0), 0.5, 1)
+                self.write(result, subtitles[0], pos[0], (255, 255, 255), 0.4, 1)
+                self.write(result, subtitles[1], pos[1], (255, 255, 255), 0.4, 1)
+                self.write(result, subtitles[2], pos[2], (255, 255, 255), 0.4, 1)
+                self.write(result, subtitles[3], pos[3], (255, 255, 255), 0.4, 1)
 
             return result
         else:
@@ -96,8 +99,8 @@ class PartTemplate:
         :param scale: "
         :return: m_frame, the base frame with color edges imprinted
         """
-        # src = cv2.GaussianBlur(frame, (3,3), 0)
-        src = cv2.medianBlur(frame,5)
+        src = cv2.GaussianBlur(frame, (3,3), 0)
+        # src = cv2.medianBlur(frame,5)
         gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
 
         dx = cv2.Sobel(gray,
@@ -118,16 +121,18 @@ class PartTemplate:
         mag, orn = cv2.cartToPolar(dx, dy, angleInDegrees=True)
 
         thresh = 50
-        orn_normalized = np.array(((orn - orn.min()) / (orn.max() - orn.min()) * 180 + 0)).astype(np.uint8)
+        orn_normalized = np.array(((orn - orn.min()) / (orn.max() - orn.min()) * 180 + 30)).astype(np.uint8)
         mag_normalized = np.array(((mag - mag.min()) / (mag.max() - mag.min()) * 255 + 0)).astype(np.uint8)
         mag_normalized[mag_normalized < thresh] = 0
 
         mat0 = orn_normalized
-        mat1 = (np.ones((480, 852)) * 255).astype(np.uint8)
-        print(mat1.max())
+        mat1 = (np.ones(orn.shape) * 255).astype(np.uint8)
+        # print(mat1.max())
         mat2 = mag_normalized
         hsv_edges = np.dstack((mat0, mat1, mat2))
-        m_frame = cv2.cvtColor(hsv_edges, cv2.COLOR_HSV2BGR) # + cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
+        m_frame = cv2.addWeighted(cv2.cvtColor(hsv_edges, cv2.COLOR_HSV2BGR), 1,
+                                  cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR), 0.3,
+                                  gamma = 0)
         # cv2.imshow("sobel", m_frame)
         return m_frame
 

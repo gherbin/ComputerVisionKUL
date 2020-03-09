@@ -1,0 +1,13 @@
+> [OK] subtitles
+> [OK] show calibration longer ?
+> [OK] -> addWeighted -> show scene before filter part 2
+> [OK] center of circles in yellow (0,255,255)
+> [OK] legends 4 circles detections
+> [OK] legend for CCOEFNORMED (verifier)
+> [OK] edge detection inside the image
+> if circles are closed to two - keep same as before 
+> filtrer "GOAL" indication on X time_step
+
+#----------------------------------------------------
+small_image.copyTo(big_image(cv::Rect(x,y,small_image.cols, small_image.rows)));
+

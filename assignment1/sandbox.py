@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 
 default_file = "D:/Videos/Test/test2.png"
 # default_file = "D:/Videos/Test/im_test.png"
-# default_file = "D:/Videos/Test/calibration.png"
+default_file = "D:/Videos/Test/calibration_thick.png"
 
 filename = default_file
 window_detection_name = "test"
@@ -56,12 +56,12 @@ cv2.imshow(" orientation" , orn)
 # "Orn, 255, Mag"
 
 
-orn_normalized = np.array(((orn - orn.min())/(orn.max() - orn.min()) * 180 + 0)).astype(np.uint8)
+orn_normalized = np.array(((orn - orn.min())/(orn.max() - orn.min()) * 180 + 30)).astype(np.uint8)
 mag_normalized = np.array(((mag - mag.min())/(mag.max() - mag.min()) * 255 + 0)).astype(np.uint8)
 mag_normalized[mag_normalized<40] = 0
 
 mat0 = orn_normalized
-mat1 = (np.ones((480,852))*255).astype(np.uint8)
+mat1 = (np.ones((480,852))*1000).astype(np.uint8)
 mat2 = mag_normalized
 
 HSV = np.dstack((mat0, mat1, mat2))
@@ -135,19 +135,19 @@ print("mean = " + str(HSV.mean()))
 i1 = "namei1"
 i2 = "namei2"
 i3 = "namei3"
-plt.matshow(mag,i1)
+# plt.matshow(mag,i1)
 # plt.matshow(mag_normalized,i2)
-plt.matshow(cv2.convertScaleAbs(mag),i3)
+# plt.matshow(cv2.convertScaleAbs(mag),i3)
 
 j1 = "namej1"
 j2 = "namej2"
 j3 = "namej3"
 
-plt.matshow(orn,j1)
+# plt.matshow(orn,j1)
 # plt.matshow(orn_normalized,j2)
-plt.matshow(cv2.convertScaleAbs(orn), j3)
+# plt.matshow(cv2.convertScaleAbs(orn), j3)
 
-plt.show()
+# plt.show()
 
 key = cv2.waitKey(0)
 

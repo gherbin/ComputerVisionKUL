@@ -40,16 +40,15 @@ class Part2(PartTemplate):
                     order = None
                     ksize = None
                     scale = None
-                    #todo maybe 4 images to clearly see the differences ?
-                    if 0 <= self.image_counter < 1*fps :
+                    if 0 <= self.image_counter < 1*fps:
                         frame = cv2.imread(cv2.samples.findFile(config.CALIBRATION_IMAGE), cv2.IMREAD_COLOR)
                         legend = "Visualisation of edges - example"
-
-                        if 0 <= self.image_counter < 0.6 * fps:
+                        legend = None # replaced by real subtitles
+                        if 0 <= self.image_counter < 0.4 * fps:
                             m_frame = frame
-                        elif 0.6*fps <= self.image_counter < 1 * fps:
+                        elif 0.4*fps <= self.image_counter < 1 * fps:
                             m_frame = self.imprint_edges(frame, 1,3,1)
-                    elif (1 <= self.image_counter < 2 * fps)  or (4 * fps <= self.image_counter < 5 * fps):
+                    elif (1 <= self.image_counter < 2 * fps) or (4 * fps <= self.image_counter < 5 * fps):
                         order = 1
                         ksize = 3
                         scale = 1
@@ -71,14 +70,12 @@ class Part2(PartTemplate):
                             ksize is not None and \
                             scale is not None:
                         m_frame = self.imprint_edges(frame, order, ksize, scale)
-                        legend = "O(dx,dy)=" + str(order) + ", k=" + str(ksize) + ", scale=" + str(scale)
-                    self.write(m_frame, legend, (w//2, h))
+                        legend = " Sobel Param: O(dx,dy)=" + str(order) + ", k=" + str(ksize) + ", scale=" + str(scale)
+                    self.write(m_frame, legend, (w//2, h), fontScale=0.75)
                     # cv2.imshow("frame", m_frame)
 
-                elif 5*fps < self.image_counter <= 15 * fps and not config.BYPASS_HOUGH:
-                    logging.debug("Hough")
-
-                    # case 1:
+                elif 5*fps <= self.image_counter < 15.5 * fps and not config.BYPASS_HOUGH:
+                    # logging.debug("Hough")
                     """
                     parameters are chosen to isolate limited amount of circles
                     decreasing param2 decreases the threshold for the accumulator, that defines circles detected. It 
@@ -89,8 +86,12 @@ class Part2(PartTemplate):
                      detected.
                      
                      increasing d makes at first more circles detected, as the 
-                     It offers a new scale for the other parameters, as it is the inverse of the ratio of the 
-                     accumulator resolution to the image resolution.
+                     It offers a new scale for the other parameters
+                     
+                     In the following, resolution of accumulator <i>dp</i> modified according to need.
+                    <i>dp</i> is inverse of the ratio of the accumulator / image resolutions
+
+                     
                     """
                     gray_not_filtered = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                     r = gray_not_filtered
@@ -105,7 +106,8 @@ class Part2(PartTemplate):
                         minDist = 50
                         minRadius = 46
                         maxRadius = 50
-                        legend = "centered to leaf - 1;160;30;50;10;100"
+                        legend = "centered to leaf"
+                        legend = None
                         #########
                         gray = r
                         # cv2.imshow("grayFiltered", gray)
@@ -125,14 +127,14 @@ class Part2(PartTemplate):
                                 print(i)
                                 center = (i[0], i[1])
                                 # circle center
-                                cv2.circle(m_frame, center, 1, (200, 0, 255), 1)
+                                cv2.circle(m_frame, center, 1, (0, 255, 255), 1)
                                 # circle outline
                                 radius = i[2]
-                                cv2.circle(m_frame, center, radius, (200, 0, 255), 2)
+                                cv2.circle(m_frame, center, radius, (0, 255, 0), 2)
                         # cv2.imshow("Hough", m_frame)
                         self.write(m_frame, legend, (w//2, h), thickness=2)
                         #########
-                    elif 7*fps <= self.image_counter < 8*fps:
+                    elif 7*fps <= self.image_counter < 8.5*fps:
                         for i in range(1, config.NUMBER_FILTER_APPLICATION):
                             r = cv2.bilateralFilter(r,  config.BILATERAL_FILTER_D, config.SIGMA_COLOR,
                                                     config.SIGMA_SPACE)
@@ -144,6 +146,7 @@ class Part2(PartTemplate):
                         minRadius = 30
                         maxRadius = 50
                         legend = "Min distance between detection very low"
+                        legend = None
                         #########
                         gray = r
                         # cv2.imshow("grayFiltered", gray)
@@ -163,14 +166,14 @@ class Part2(PartTemplate):
                                 print(i)
                                 center = (i[0], i[1])
                                 # circle center
-                                cv2.circle(m_frame, center, 1, (200, 0, 255), 1)
+                                cv2.circle(m_frame, center, 1, (0, 255, 255), 1)
                                 # circle outline
                                 radius = i[2]
-                                cv2.circle(m_frame, center, radius, (200, 0, 255), 2)
+                                cv2.circle(m_frame, center, radius, (0, 255, 0), 2)
                         # cv2.imshow("Hough", m_frame)
                         self.write(m_frame, legend, (w//2, h), thickness=2)
                         #########
-                    elif 8*fps <= self.image_counter < 9*fps:
+                    elif 8.5*fps <= self.image_counter < 9.5*fps:
                         for i in range(1, config.NUMBER_FILTER_APPLICATION):
                             r = cv2.bilateralFilter(r,  config.BILATERAL_FILTER_D, config.SIGMA_COLOR,
                                                     config.SIGMA_SPACE)
@@ -181,11 +184,12 @@ class Part2(PartTemplate):
                         minRadius = 10
                         maxRadius = 100
                         legend = "More (noisy) detected (accumulator threshold decreased)"
+                        legend = None
                         #########
                         gray = r
                         # cv2.imshow("grayFiltered", gray)
                         edges = cv2.Canny(gray, param1, param1 / 2)
-                        # cv2.imshow("canny", edges)
+                        cv2.imshow("canny", edges)
                         circles_detected = cv2.HoughCircles(gray,
                                                             cv2.HOUGH_GRADIENT,
                                                             dp=dp,
@@ -200,14 +204,14 @@ class Part2(PartTemplate):
                                 print(i)
                                 center = (i[0], i[1])
                                 # circle center
-                                cv2.circle(m_frame, center, 1, (200, 0, 255), 1)
+                                cv2.circle(m_frame, center, 1, (0, 255, 255), 1)
                                 # circle outline
                                 radius = i[2]
-                                cv2.circle(m_frame, center, radius, (200, 0, 255), 2)
+                                cv2.circle(m_frame, center, radius, (0, 255, 0), 2)
                         # cv2.imshow("Hough", m_frame)
                         self.write(m_frame, legend, (w//2, h), thickness=2)
                         #########
-                    elif 9*fps <= self.image_counter < 11*fps:
+                    elif 9.5*fps <= self.image_counter < 11*fps:
                         for i in range(1, config.NUMBER_FILTER_APPLICATION):
                             r = cv2.bilateralFilter(r,  config.BILATERAL_FILTER_D, config.SIGMA_COLOR,
                                                     config.SIGMA_SPACE)
@@ -218,7 +222,7 @@ class Part2(PartTemplate):
                         minRadius = 10
                         maxRadius = 100
                         legend = "Threshold for internal edge detection decreased -> more detection"
-
+                        legend = None
                         #########
                         gray = r
                         # cv2.imshow("grayFiltered", gray)
@@ -238,92 +242,14 @@ class Part2(PartTemplate):
                                 print(i)
                                 center = (i[0], i[1])
                                 # circle center
-                                cv2.circle(m_frame, center, 1, (200, 0, 255), 1)
+                                cv2.circle(m_frame, center, 1, (0, 255, 255), 1)
                                 # circle outline
                                 radius = i[2]
-                                cv2.circle(m_frame, center, radius, (200, 0, 255), 2)
+                                cv2.circle(m_frame, center, radius, (0, 255, 0), 2)
                         # cv2.imshow("Hough", m_frame)
                         self.write(m_frame, legend, (w // 2, h), thickness=2)
-                        #########
-                    #
-                    # elif 11*fps <= self.image_counter < 12*fps:
-                    #     for i in range(1, config.NUMBER_FILTER_APPLICATION):
-                    #         r = cv2.bilateralFilter(r,  config.BILATERAL_FILTER_D, config.SIGMA_COLOR,
-                    #                                 config.SIGMA_SPACE)
-                    #     dp = 2
-                    #     param1 = 201
-                    #     param2 = 40
-                    #     minDist = 160
-                    #     minRadius = 229
-                    #     maxRadius = 251
-                    #     legend = "min and max Radius both high => only large circles"
-                    #     #########
-                    #     gray = r
-                    #     cv2.imshow("grayFiltered", gray)
-                    #     edges = cv2.Canny(gray, param1, param1 / 2)
-                    #     cv2.imshow("canny", edges)
-                    #     circles_detected = cv2.HoughCircles(gray,
-                    #                                         cv2.HOUGH_GRADIENT,
-                    #                                         dp=dp,
-                    #                                         minDist=minDist,
-                    #                                         param1=param1,
-                    #                                         param2=param2,
-                    #                                         minRadius=minRadius,
-                    #                                         maxRadius=maxRadius)
-                    #     if circles_detected is not None:
-                    #         circles_detected = np.uint16(np.around(circles_detected))
-                    #         for i in circles_detected[0, :]:
-                    #             print(i)
-                    #             center = (i[0], i[1])
-                    #             # circle center
-                    #             cv2.circle(m_frame, center, 1, (200, 0, 255), 1)
-                    #             # circle outline
-                    #             radius = i[2]
-                    #             cv2.circle(m_frame, center, radius, (200, 0, 255), 2)
-                    #     cv2.imshow("Hough", m_frame)
-                    #     self.write(m_frame, legend, (w // 2, h), thickness=2)
-                    #     #########
-                    # # # elif 12*fps <= self.image_counter < 13*fps:
-                    # elif 12*fps <= self.image_counter < 15*fps:
-                    #     legend = "including sharpening"
-                    #     dp = 2
-                    #     param1 = 220
-                    #     param2 = 181
-                    #     minDist = 20
-                    #     minRadius = 50
-                    #     maxRadius = 95
-                    #     for i in range(1, config.NUMBER_FILTER_APPLICATION):
-                    #         r = cv2.bilateralFilter(r,  config.BILATERAL_FILTER_D, config.SIGMA_COLOR, config.SIGMA_SPACE)
-                    #         kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
-                    #         r = cv2.filter2D(r, -1, kernel)
-                    #
-                    #     #########
-                    #     gray = r
-                    #     cv2.imshow("grayFiltered", gray)
-                    #     edges = cv2.Canny(gray, param1, param1 / 2)
-                    #     cv2.imshow("canny", edges)
-                    #     circles_detected = cv2.HoughCircles(gray,
-                    #                                         cv2.HOUGH_GRADIENT,
-                    #                                         dp=dp,
-                    #                                         minDist=minDist,
-                    #                                         param1=param1,
-                    #                                         param2=param2,
-                    #                                         minRadius=minRadius,
-                    #                                         maxRadius=maxRadius)
-                    #     if circles_detected is not None:
-                    #         circles_detected = np.uint16(np.around(circles_detected))
-                    #         for i in circles_detected[0, :]:
-                    #             print(i)
-                    #             center = (i[0], i[1])
-                    #             # circle center
-                    #             cv2.circle(m_frame, center, 1, (200, 0, 255), 1)
-                    #             # circle outline
-                    #             radius = i[2]
-                    #             cv2.circle(m_frame, center, radius, (200, 0, 255), 2)
-                    #     cv2.imshow("Hough", m_frame)
-                    #     self.write(m_frame, legend, (w//2, h), thickness=2)
-                    #     #########
-                    elif 11 * fps <= self.image_counter <= 15 * fps:
+
+                    elif 11 * fps <= self.image_counter <= 15.5 * fps:
                         r = gray_not_filtered.copy()
                         r_sharp = gray_not_filtered.copy()
 
@@ -344,10 +270,10 @@ class Part2(PartTemplate):
                         hloc = frame.shape[0] // 2
                         wloc = frame.shape[1] // 2
 
-                        legend_l1 = "Left 1"
-                        legend_l2 = "Left 2"
-                        legend_r1 = "Right 1"
-                        legend_r2 = "Right 2"
+                        legend_l1 = "centered to leaf"
+                        legend_l2 = "decrease accumulator, specific radius"
+                        legend_r1 = "extra sharpening + targetting orchid"
+                        legend_r2 = "targetting one large circle"
 
                         # cv2.imshow("grayFiltered", gray)
                         # edges = cv2.Canny(gray, param1, param1 / 2)
@@ -358,6 +284,7 @@ class Part2(PartTemplate):
                         l1_prep = frame.copy()
                         gray_l1 = gray.copy()
                         param_l1 = [1, 160, 30, 50, 40, 50]
+
                         # L2) two leaves ?
                         l2_prep = frame.copy()
                         param_l2 = [2, 350, 24, 46, 57, 62]
@@ -394,10 +321,17 @@ class Part2(PartTemplate):
                                 for i in circles_detected[0, :]:
                                     center = (i[0], i[1])
                                     # circle center
-                                    cv2.circle(output_frames[index], center, 1, (200, 0, 255), 1)
+                                    cv2.circle(output_frames[index], center, 1, (0, 255, 255), 1)
                                     # circle outline
                                     radius = i[2]
-                                    cv2.circle(output_frames[index], center, radius, (200, 0, 255), 2)
+                                    cv2.circle(output_frames[index], center, radius, (0, 255, 0), 2)
+                            edges = cv2.Canny(grays[index], params[index][1], params[index][1] / 2)
+                            edges_resized= cv2.resize(edges, (config.WIDTH_CANNY, config.HEIGHT_CANNY))
+                            edges_resized = cv2.cvtColor(edges_resized, cv2.COLOR_GRAY2BGR)
+                            self.write(edges_resized, "canny output", (config.WIDTH_CANNY//2, config.HEIGHT_CANNY), (255,255,255),0.4,1,False)
+                            off_x = edges_resized.shape[0]
+                            off_y = edges_resized.shape[1]
+                            output_frames[index][5:5+off_x, 5:5+off_y] = edges_resized
 
                         # cv2.imshow("output_frames_0",output_frames[0])
                         # cv2.imshow("l1_prep",l1_prep)
@@ -414,8 +348,8 @@ class Part2(PartTemplate):
                                                       (legend_l1, legend_l2, legend_r1, legend_r2))
                         # cv2.imshow("Hough", m_frame)
                         # self.write(m_frame, legend, (w // 2, h), thickness=2)
-                elif 15*fps < self.image_counter<=20*fps:
-                    if 15*fps < self.image_counter <= 17*fps:
+                elif 15.5*fps < self.image_counter<=20*fps:
+                    if 15.5*fps < self.image_counter <= 17*fps:
                         # show object
                         if self.is_object_present(frame):
 

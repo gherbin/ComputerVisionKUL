@@ -1,0 +1,80 @@
+1
+00:00:00,100 --> 00:00:00,999
+Geoffroy Herbin - Computer Vision - Assignment 1
+
+2
+00:00:01,000 --> 00:00:01,999
+switch between color and grayscale
+
+3
+00:00:04,000 --> 00:00:04,999
+Gaussian filters
+
+4
+00:00:06,000 --> 00:00:06,999
+Bilateral filters
+
+5
+00:00:08,000 --> 00:00:08,999
+Gaussian vs Bilateral filters
+
+6
+00:00:09,000 --> 00:00:09,999
+[Left] Gaussian = blurry
+[Right] Bilateral = edge preserving
+
+8
+00:00:12,000 --> 00:00:12,899
+RGB colorspace
+
+9
+00:00:13,000 --> 00:00:13,899
+HSV colorspace
+
+10
+00:00:17,000 --> 00:00:18,499
+red = opening, green = dilatation, blue = closing
+
+11
+00:00:20,000 --> 00:00:20,999
+Calibration view - Sobel edge detection
+
+
+00:00:25,000 --> 00:00:26,499
+Hough Transform 
+Parameters first chosen to isolate plant leaf
+
+00:00:27,200 --> 00:00:28,499
+<i>MinDist</i> very small: multiple circles very close
+
+00:00:28,550 --> 00:00:29,499
+Accumulator <i>param2</i> lower: more (noisy) circles detected
+(according to radius boundaries set)
+
+00:00:29,500 --> 00:00:30,899
+Edge detection parameter <i>param1</i> lower: more detections
+
+00:00:31,000 --> 00:00:32,999
+Different set of parameters allow tuning towards specific target
+<i> Canny edge detection output shown </i>
+
+
+00:00:36,000 --> 00:00:37,999
+Object found using template matching technique ( <i>CCOEFF_NORMED</i> )
+
+00:00:38,000 --> 00:00:39,999
+Brightest point has the highest probability of matching the template
+
+00:00:40,499 --> 00:00:41,499
+Same scene, 3 yellow hockey balls
+
+00:00:43,000 --> 00:00:44,999
+Let's track those balls on fire!
+
+
+00:00:51,399 --> 00:00:52,999
+<i>Goal Line Assistance </i>
+
+
+00:00:54,000 --> 00:00:56,999
+Simple hockey rule: ball must cross entirely the line to score

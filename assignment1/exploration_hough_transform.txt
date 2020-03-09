@@ -1,0 +1,52 @@
+situation 1 
+param1 = 88
+param2 = 36
+minDist = 15
+minRadius = 1
+maxRadius = 91
+=> plant, orchidea, card
+------------------------------
+Increasing the threshold param1 decreases the amount of circles detected
+
+decreasing minDist, interesting area is on the left, around the leaf. inner circles are detected
+
+
+param1 = 88
+param2 = 30
+minDist = 80
+minRadius = 10
+maxRadius = 91
+=> decrease threshold accumulator (param2) : much more circles; 
+=> interesting to increase the minimal distance between detected circles
+=> Much more circles, plant + orchidea + apple + several circles on the painting and birthday cards
+
+	
+decreasing again accumulator param2 to 22
+> more fruits
+> more in plants, ...
+=> more not real circles
+
+
+param1 = 154
+param2 = 28
+minDist = 80 ===> 1
+minRadius = 10
+maxRadius = 91
+=> plant, orchidea, card
+
+much more detection on the same place
+
+If we want to be much more selective:
+=> apple ! 
+=> set radius around target radius (38 -> 60)
+=> min distance between centers ~= 17
+=> param2 = 24
+
+
+===================
+dp = 2
+param 1 = 167
+param 2 = 73
+minDist = 52
+minRadius = 28
+maxRadius = 90
