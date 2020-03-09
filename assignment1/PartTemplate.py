@@ -13,13 +13,10 @@ class PartTemplate:
         self.image_counter = image_counter
         self.video_writer = video_writer
 
-    def write(self, image, text, pos, color=(0, 0, 0), fontScale=1, thickness=1):
+    def write(self, image, text, pos, color=(255, 255, 255), fontScale=1, thickness=1, draw_background=True):
         # pos = (x,y) => center of the text to be written
         font_scale = 1
         font = cv2.FONT_HERSHEY_SIMPLEX
-
-        # set the rectangle background to white
-        rectangle_bgr = (255, 255, 255)
         label_pos = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, fontScale, thickness)
         margin = 10
         text_width = label_pos[0][0]
@@ -33,9 +30,13 @@ class PartTemplate:
         # print(text_width)
         # print(text_height)
         _x = pos[0] - text_width//2
-        _y = pos[1] - text_height//2 + margin
-        box_coords = ((_x, _y), (_x + text_width + 2, _y - text_height - 2))
-        cv2.rectangle(image, box_coords[0], box_coords[1], rectangle_bgr, cv2.FILLED)
+        _y = pos[1] - text_height//2 - margin
+        # set the rectangle background to white
+        if draw_background:
+            rectangle_bgr = (0, 0, 0)
+            box_coords = ((_x, _y), (_x + text_width + 2, _y - text_height - 2))
+            cv2.rectangle(image, box_coords[0], box_coords[1], rectangle_bgr, cv2.FILLED)
+
         cv2.putText(image, text, (_x, _y),
                     fontFace=font,
                     fontScale=fontScale,
@@ -85,6 +86,51 @@ class PartTemplate:
         else:
             raise NotImplementedError
 
+
+    def imprint_edges(self, frame, order, ksize, scale):
+        """
+
+        :param frame: frame on which to imprint the edges
+        :param order: parameter of sobel filter
+        :param ksize: "
+        :param scale: "
+        :return: m_frame, the base frame with color edges imprinted
+        """
+        # src = cv2.GaussianBlur(frame, (3,3), 0)
+        src = cv2.medianBlur(frame,5)
+        gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+
+        dx = cv2.Sobel(gray,
+                       ddepth=cv2.CV_64F,
+                       dx=1 * order,
+                       dy=0 * order,
+                       ksize=ksize,
+                       scale=scale,
+                       delta=0)
+        dy = cv2.Sobel(gray,
+                       ddepth=cv2.CV_64F,
+                       dx=0 * order,
+                       dy=1 * order,
+                       ksize=ksize,
+                       scale=scale,
+                       delta=0)
+
+        mag, orn = cv2.cartToPolar(dx, dy, angleInDegrees=True)
+
+        thresh = 50
+        orn_normalized = np.array(((orn - orn.min()) / (orn.max() - orn.min()) * 180 + 0)).astype(np.uint8)
+        mag_normalized = np.array(((mag - mag.min()) / (mag.max() - mag.min()) * 255 + 0)).astype(np.uint8)
+        mag_normalized[mag_normalized < thresh] = 0
+
+        mat0 = orn_normalized
+        mat1 = (np.ones((480, 852)) * 255).astype(np.uint8)
+        print(mat1.max())
+        mat2 = mag_normalized
+        hsv_edges = np.dstack((mat0, mat1, mat2))
+        m_frame = cv2.cvtColor(hsv_edges, cv2.COLOR_HSV2BGR) # + cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
+        # cv2.imshow("sobel", m_frame)
+        return m_frame
+
     def is_object_present(self, frame):
         """
         :param frame: the BGR frame to analyze.
@@ -98,7 +144,7 @@ class PartTemplate:
         minRadius = 15
         maxRadius = 40
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-        cv2.imshow("HSV", hsv)
+        # cv2.imshow("HSV", hsv)
         low_H = 19
         high_H = 42
         low_S = 165

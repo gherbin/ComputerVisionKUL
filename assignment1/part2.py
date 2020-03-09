@@ -33,7 +33,7 @@ class Part2(PartTemplate):
             # logging.debug("ImageCounter => " + str(self.image_counter))
 
             if val == True and self.image_counter <= 20 * fps:
-                # logging.debug("Processed = " + str(round(100 * self.image_counter / 20 / fps, 2)))
+                logging.debug("Processed part 2 = " + str(round(100 * self.image_counter / 20 / fps, 2)))
                 m_frame = frame
                 if self.image_counter <= 5 * fps and not config.BYPASS_SOBEL:
                     m_frame = None
@@ -108,9 +108,9 @@ class Part2(PartTemplate):
                         legend = "centered to leaf - 1;160;30;50;10;100"
                         #########
                         gray = r
-                        cv2.imshow("grayFiltered", gray)
+                        # cv2.imshow("grayFiltered", gray)
                         edges = cv2.Canny(gray, param1, param1 / 2)
-                        cv2.imshow("canny", edges)
+                        # cv2.imshow("canny", edges)
                         circles_detected = cv2.HoughCircles(gray,
                                                             cv2.HOUGH_GRADIENT,
                                                             dp=dp,
@@ -129,7 +129,7 @@ class Part2(PartTemplate):
                                 # circle outline
                                 radius = i[2]
                                 cv2.circle(m_frame, center, radius, (200, 0, 255), 2)
-                        cv2.imshow("Hough", m_frame)
+                        # cv2.imshow("Hough", m_frame)
                         self.write(m_frame, legend, (w//2, h), thickness=2)
                         #########
                     elif 7*fps <= self.image_counter < 8*fps:
@@ -146,9 +146,9 @@ class Part2(PartTemplate):
                         legend = "Min distance between detection very low"
                         #########
                         gray = r
-                        cv2.imshow("grayFiltered", gray)
+                        # cv2.imshow("grayFiltered", gray)
                         edges = cv2.Canny(gray, param1, param1 / 2)
-                        cv2.imshow("canny", edges)
+                        # cv2.imshow("canny", edges)
                         circles_detected = cv2.HoughCircles(gray,
                                                             cv2.HOUGH_GRADIENT,
                                                             dp=dp,
@@ -167,7 +167,7 @@ class Part2(PartTemplate):
                                 # circle outline
                                 radius = i[2]
                                 cv2.circle(m_frame, center, radius, (200, 0, 255), 2)
-                        cv2.imshow("Hough", m_frame)
+                        # cv2.imshow("Hough", m_frame)
                         self.write(m_frame, legend, (w//2, h), thickness=2)
                         #########
                     elif 8*fps <= self.image_counter < 9*fps:
@@ -183,9 +183,9 @@ class Part2(PartTemplate):
                         legend = "More (noisy) detected (accumulator threshold decreased)"
                         #########
                         gray = r
-                        cv2.imshow("grayFiltered", gray)
+                        # cv2.imshow("grayFiltered", gray)
                         edges = cv2.Canny(gray, param1, param1 / 2)
-                        cv2.imshow("canny", edges)
+                        # cv2.imshow("canny", edges)
                         circles_detected = cv2.HoughCircles(gray,
                                                             cv2.HOUGH_GRADIENT,
                                                             dp=dp,
@@ -204,7 +204,7 @@ class Part2(PartTemplate):
                                 # circle outline
                                 radius = i[2]
                                 cv2.circle(m_frame, center, radius, (200, 0, 255), 2)
-                        cv2.imshow("Hough", m_frame)
+                        # cv2.imshow("Hough", m_frame)
                         self.write(m_frame, legend, (w//2, h), thickness=2)
                         #########
                     elif 9*fps <= self.image_counter < 11*fps:
@@ -221,9 +221,9 @@ class Part2(PartTemplate):
 
                         #########
                         gray = r
-                        cv2.imshow("grayFiltered", gray)
+                        # cv2.imshow("grayFiltered", gray)
                         edges = cv2.Canny(gray, param1, param1 / 2)
-                        cv2.imshow("canny", edges)
+                        # cv2.imshow("canny", edges)
                         circles_detected = cv2.HoughCircles(gray,
                                                             cv2.HOUGH_GRADIENT,
                                                             dp=dp,
@@ -242,7 +242,7 @@ class Part2(PartTemplate):
                                 # circle outline
                                 radius = i[2]
                                 cv2.circle(m_frame, center, radius, (200, 0, 255), 2)
-                        cv2.imshow("Hough", m_frame)
+                        # cv2.imshow("Hough", m_frame)
                         self.write(m_frame, legend, (w // 2, h), thickness=2)
                         #########
                     #
@@ -400,10 +400,10 @@ class Part2(PartTemplate):
                                     cv2.circle(output_frames[index], center, radius, (200, 0, 255), 2)
 
                         # cv2.imshow("output_frames_0",output_frames[0])
-                        cv2.imshow("l1_prep",l1_prep)
-                        cv2.imshow("l2_prep",l2_prep)
-                        cv2.imshow("r1_prep",r1_prep)
-                        cv2.imshow("r2_prep",r2_prep)
+                        # cv2.imshow("l1_prep",l1_prep)
+                        # cv2.imshow("l2_prep",l2_prep)
+                        # cv2.imshow("r1_prep",r1_prep)
+                        # cv2.imshow("r2_prep",r2_prep)
 
                         l1 = cv2.resize(output_frames[0], (wloc, hloc))
                         l2 = cv2.resize(output_frames[1], (wloc, hloc))
@@ -412,7 +412,7 @@ class Part2(PartTemplate):
                         m_frame = self.display_frames(frame.shape,
                                                       (l1, l2, r1, r2),
                                                       (legend_l1, legend_l2, legend_r1, legend_r2))
-                        cv2.imshow("Hough", m_frame)
+                        # cv2.imshow("Hough", m_frame)
                         # self.write(m_frame, legend, (w // 2, h), thickness=2)
                 elif 15*fps < self.image_counter<=20*fps:
                     if 15*fps < self.image_counter <= 17*fps:
@@ -450,7 +450,7 @@ class Part2(PartTemplate):
                         width, height = template.shape[::-1]
                         result_matching = cv2.matchTemplate(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY),
                                                             template,
-                                                            cv2.TM_CCOEFF_NORMED).astype(np.float64) # TM_CCORR_NORMED
+                                                            cv2.TM_CCOEFF_NORMED).astype(np.float64)
                         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result_matching)
 
                         rect_corner_top_left = max_loc
@@ -459,12 +459,12 @@ class Part2(PartTemplate):
                                                         45, 45, 45, 45,
                                                         cv2.BORDER_CONSTANT, value=(0,0,0))
                         m_frame_tmp3 = np.dstack((m_frame_tmp, m_frame_tmp, m_frame_tmp))
-                        cv2.rectangle(m_frame_tmp3, rect_corner_top_left, rect_corner_bottom_right, (0, 255, 0), 2, 8, 0)
 
 
-                        m_frame = (m_frame_tmp3*255).astype(np.uint8)
-                        # logging.debug("M_FRAME_SHAPE IN => " + str(m_frame.shape))
-                        # logging.debug("M_FRAME_DTYPE IN => " + str(m_frame.dtype))
+
+                        m_frame= np.array(((m_frame_tmp3 - m_frame_tmp3.min()) / (m_frame_tmp3.max() -
+                                                                                 m_frame_tmp3.min()) * 255 + 0)).astype(np.uint8)
+                        cv2.rectangle(m_frame, rect_corner_top_left, rect_corner_bottom_right, (0, 255, 0), 2, 8, 0)
 
                         # cv2.imshow("M_FRAME", m_frame)
 
@@ -474,8 +474,8 @@ class Part2(PartTemplate):
                     m_frame = frame
                     self.write(m_frame, subtitle_text, (w // 2, h // 2))
                 # print(m_frame.shape)
-                logging.debug("M_FRAME_SHAPE = " + str(m_frame.shape))
-                logging.debug("M_FRAME_DTYPE" + str(m_frame.dtype))
+                # logging.debug("M_FRAME_SHAPE = " + str(m_frame.shape))
+                # logging.debug("M_FRAME_DTYPE" + str(m_frame.dtype))
                 self.video_writer.write(m_frame)
                 self.image_counter += 1
             else:
@@ -484,47 +484,6 @@ class Part2(PartTemplate):
                 break
         return True
 
-    def imprint_edges(self, frame, order, ksize, scale):
-        """
-
-        :param frame: frame on which to imprint the edges
-        :param order: parameter of sobel filter
-        :param ksize: "
-        :param scale: "
-        :return: m_frame, the base frame with color edges imprinted
-        """
-        src = cv2.GaussianBlur(frame, (3, 3), 0)
-        gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
-
-        dx = cv2.Sobel(gray,
-                       ddepth=cv2.CV_64F,
-                       dx=1 * order,
-                       dy=0 * order,
-                       ksize=ksize,
-                       scale=scale,
-                       delta=0)
-        dy = cv2.Sobel(gray,
-                       ddepth=cv2.CV_64F,
-                       dx=0 * order,
-                       dy=1 * order,
-                       ksize=ksize,
-                       scale=scale,
-                       delta=0)
-
-        mag, orn = cv2.cartToPolar(dx, dy, angleInDegrees=True)
-
-        thresh = 50
-        orn_normalized = np.array(((orn - orn.min()) / (orn.max() - orn.min()) * 180 + 0)).astype(np.uint8)
-        mag_normalized = np.array(((mag - mag.min()) / (mag.max() - mag.min()) * 255 + 0)).astype(np.uint8)
-        mag_normalized[mag_normalized < thresh] = 0
-
-        mat0 = orn_normalized
-        mat1 = (np.ones((480, 852)) * 255).astype(np.uint8)
-        mat2 = mag_normalized
-
-        hsv_edges = np.dstack((mat0, mat1, mat2))
-        m_frame = cv2.cvtColor(hsv_edges, cv2.COLOR_HSV2BGR) + cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
-        return m_frame
 
 
 

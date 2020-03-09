@@ -50,7 +50,7 @@ class Part1(PartTemplate):
             m_frame = frame
             if val == True and self.image_counter <= 20 * fps:
                 # cv2.imshow("Test",frame)
-                logging.debug("Processed = " +str(round(100*self.image_counter / 20/fps,2)))
+                logging.debug("Processed part 1 = " +str(round(100*self.image_counter / 20/fps,2)))
 
                 if self.image_counter <= 4 * fps:
                     if (self.image_counter // (fps/2)) % 2 == 1:
@@ -161,7 +161,7 @@ class Part1(PartTemplate):
                         m_frame = self.display_frames(frame.shape,
                                                       (l1, l2, r1, r2),
                                                       (legend_l1, legend_l2, legend_r1, legend_r2))
-                        cv2.imshow("Test 10-12", m_frame)
+                        # cv2.imshow("Test 10-12", m_frame)
                     else:
                         subtitle_text = "Bypass - Normal Image"
                         m_frame = frame
@@ -192,7 +192,7 @@ class Part1(PartTemplate):
                             m_frame = cv2.cvtColor(thresholds, cv2.COLOR_GRAY2BGR)
                             legend = "Binary frame from HSV color space thresholding"
                             self.write(m_frame, legend, (w//2, h), fontScale=1)
-                            cv2.imshow(" test binary", m_frame)
+                            # cv2.imshow(" test binary", m_frame)
                         elif config.THRESHOLD_COLOR_SPACE is "GRAY":
                             sigmaColor = 30
                             sigmaSpace = 3
