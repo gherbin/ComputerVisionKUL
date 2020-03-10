@@ -1,11 +1,11 @@
 INPUT_FILE_PART1 = "video_inputs/part1.mp4"
 INPUT_FILE_PART2 = "video_inputs/part2.mp4"
-INPUT_FILE_PART3_1 = "video_inputs/part3/part3-1.mp4"
-INPUT_FILE_PART3_2 = "video_inputs/part3/part3-2.mp4"
-OUTPUT_FILE = "output.mp4"
+INPUT_FILE_PART3_1 = "video_inputs/part3-1.mp4"
+INPUT_FILE_PART3_2 = "video_inputs/part3-2.mp4"
 CALIBRATION_IMAGE = "template/calibration_thick.png"
 TEMPLATE_FILE = "template/template_91_91.png"
-TEMPLATE_FILE_CIRCLE_FIRE = "template/part3/circle_fire.png"
+TEMPLATE_FILE_CIRCLE_FIRE = "template/circle_fire.png"
+OUTPUT_FILE = "output.mp4"
 FOURCC = 'mp4v'
 THRESHOLD_LOW = 140  # used in binary frame of gray images (not sure if will be used)
 THRESHOLD_HIGH = 185  # used in binary frames of gray images (not sure if will be used)

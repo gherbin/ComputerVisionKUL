@@ -249,7 +249,7 @@ class Part2(PartTemplate):
                         # cv2.imshow("Hough", m_frame)
                         self.write(m_frame, legend, (w // 2, h), thickness=2)
 
-                    elif 11 * fps <= self.image_counter <= 15.5 * fps:
+                    elif 11 * fps <= self.image_counter <= 15.25 * fps:
                         r = gray_not_filtered.copy()
                         r_sharp = gray_not_filtered.copy()
 
@@ -348,8 +348,8 @@ class Part2(PartTemplate):
                                                       (legend_l1, legend_l2, legend_r1, legend_r2))
                         # cv2.imshow("Hough", m_frame)
                         # self.write(m_frame, legend, (w // 2, h), thickness=2)
-                elif 15.5*fps < self.image_counter<=20*fps:
-                    if 15.5*fps < self.image_counter <= 17*fps:
+                elif 15.25*fps < self.image_counter<=20*fps:
+                    if 15.25*fps < self.image_counter <= 17*fps:
                         # show object
                         if self.is_object_present(frame):
 
