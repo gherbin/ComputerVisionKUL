@@ -238,7 +238,7 @@ class Part2(PartTemplate):
                         if circles_detected is not None:
                             circles_detected = np.uint16(np.around(circles_detected))
                             for i in circles_detected[0, :]:
-                                print(i)
+                                # print(i)
                                 center = (i[0], i[1])
                                 # circle center
                                 cv2.circle(m_frame, center, 1, (0, 255, 255), 1)

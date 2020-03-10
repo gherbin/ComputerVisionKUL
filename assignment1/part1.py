@@ -64,7 +64,7 @@ class Part1(PartTemplate):
             m_frame = frame
             if val == True and self.image_counter <= 20 * fps:
                 # cv2.imshow("Test",frame)
-                logging.debug("Processed part 1 = " + str(round(100*self.image_counter / 20/fps,2)) + " %")
+                logging.info("Processed part 1 = " + str(round(100*self.image_counter / 20/fps,2)) + " %")
 
                 if self.image_counter <= 4 * fps:
                     if (self.image_counter // (fps/2)) % 2 == 1:

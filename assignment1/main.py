@@ -7,7 +7,7 @@ import cv2
 
 
 def main():
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
 
     output_file = config.OUTPUT_FILE
 
@@ -26,7 +26,6 @@ def main():
     logging.debug("h = " + str(h))
     logging.debug("w = " + str(w))
     image_counter = 0
-
 
     fourcc = cv2.VideoWriter_fourcc(*config.FOURCC)
     output_video_writer = cv2.VideoWriter(output_file, fourcc, fps, (w, h))

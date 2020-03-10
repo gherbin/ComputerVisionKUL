@@ -79,7 +79,10 @@ tracking: <i>1-nearest</i>: improvements possible, considered out-of-scope
 
 00:00:51,399 --> 00:00:52,999
 <i>Goal Line Assistance </i>
-Goal is below the white line
+Goal is below the white line (if ball on screen!)
 
 00:00:54,000 --> 00:00:56,999
 Simple hockey rule: ball must cross entirely the line to score
+
+00:00:59,500 --> 00:01:02,999
+Thanks for watching!

@@ -43,7 +43,7 @@ class Part3(PartTemplate):
             # logging.debug("ImageCounter => " + str(self.image_counter))
 
             if val == True and self.image_counter <= config.TIME_LIMIT_END * fps:
-                logging.debug("Processed part 3 = " + str(round(100 * self.image_counter / 20 / fps, 2))+ " %")
+                logging.info("Processed part 3 = " + str(round(100 * self.image_counter / 20 / fps, 2))+ " %")
 
                 m_frame = frame
                 if 0 <= self.image_counter < 1 * fps:
