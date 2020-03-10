@@ -193,45 +193,87 @@ class Part1(PartTemplate):
                     #
                     if 12 * fps < self.image_counter <= 13 * fps:
                         m_frame = frame
+
                     elif 13*fps < self.image_counter <= 14.5 * fps:
-                        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-                        m_frame = hsv
-                    elif 14.5*fps < self.image_counter <= 17 * fps:
-                        # binary frame in HSV
                         new_frame = self.apply_gaussian(frame, (7,7), 10)
 
-                        if config.THRESHOLD_COLOR_SPACE is "HSV":
-                            hsv = cv2.cvtColor(new_frame, cv2.COLOR_BGR2HSV)
-                            low_H = 0
-                            low_S = 146
-                            low_V = 62
-                            high_H = 180
-                            high_S = 255
-                            high_V = 255
-                            thresholds = cv2.inRange(hsv, (low_H, low_S, low_V), (high_H, high_S, high_V))
-                            m_frame = cv2.cvtColor(thresholds, cv2.COLOR_GRAY2BGR)
-                            legend = "Binary frame from HSV color space thresholding"
-                            self.write(m_frame, legend, (w//2, h), fontScale=1)
-                            # cv2.imshow(" test binary", m_frame)
-                        elif config.THRESHOLD_COLOR_SPACE is "GRAY":
-                            sigmaColor = 30
-                            sigmaSpace = 3
-                            bilateral = frame  # gaussian
-                            for i in range(1, 5):
-                                bilateral = cv2.bilateralFilter(bilateral, -1, sigmaColor, sigmaSpace)
-                            useable = cv2.cvtColor(bilateral, cv2.COLOR_BGR2GRAY)
-                            ret2, thresh_low = cv2.threshold(useable, config.THRESHOLD_LOW, 255, cv2.THRESH_BINARY)
-                            ret3, thresh_high = cv2.threshold(useable, config.THRESHOLD_HIGH, 255, cv2.THRESH_BINARY)
-                            result = thresh_low - thresh_high
-                            bgr_thresh_low = cv2.cvtColor(thresh_low, cv2.COLOR_GRAY2BGR)
-                            bgr_thresh_high = cv2.cvtColor(thresh_high, cv2.COLOR_GRAY2BGR)
-                            result_bgr = cv2.cvtColor(result, cv2.COLOR_GRAY2BGR)
+                        sigmaColor = 30
+                        sigmaSpace = 3
+                        bilateral = new_frame  # gaussian
 
-                            m_frame = self.display_frames(frame.shape,
-                                                          (frame, bgr_thresh_low, result_bgr, bgr_thresh_high),
-                                                          ("Original", "Low Threshold", "High - Low", "High Threshold"))
-                        else:
-                            raise NotImplementedError("Wrong color space in config")
+                        # green = frame.copy()
+                        # # set blue and red channels to 0
+                        # green[:, :, 0] = 0
+                        # green[:, :, 2] = 0
+                        #
+                        # red = frame.copy()
+                        # # set blue and green channels to 0
+                        # red[:, :, 0] = 0
+                        # red[:, :, 1] = 0
+                        #
+                        # yellow = green + red
+                        # bilateral = yellow
+
+                        for i in range(1, 5):
+                            bilateral = cv2.bilateralFilter(bilateral, -1, sigmaColor, sigmaSpace)
+                        useable = cv2.cvtColor(bilateral, cv2.COLOR_BGR2GRAY)
+                        ret2, thresh_low = cv2.threshold(useable, config.THRESHOLD_LOW, 255, cv2.THRESH_BINARY)
+                        ret3, thresh_high = cv2.threshold(useable, config.THRESHOLD_HIGH, 255, cv2.THRESH_BINARY)
+                        result = thresh_low - thresh_high
+                        bgr_thresh_low = cv2.cvtColor(thresh_low, cv2.COLOR_GRAY2BGR)
+                        bgr_thresh_high = cv2.cvtColor(thresh_high, cv2.COLOR_GRAY2BGR)
+                        result_bgr = cv2.cvtColor(result, cv2.COLOR_GRAY2BGR)
+
+                        # m_frame = self.display_frames(frame.shape,
+                        #                               (frame, bgr_thresh_low, result_bgr, bgr_thresh_high),
+                        #                               ("Original", "Low Threshold", "High - Low", "High Threshold"))
+                        m_frame = result_bgr
+
+                        if 13*fps < self.image_counter <= 14 * fps:
+                            bgr_thresh_high_resized = cv2.resize(bgr_thresh_high, (config.WIDTH_CANNY, config.HEIGHT_CANNY))
+                            bgr_thresh_low_resized = cv2.resize(bgr_thresh_low, (config.WIDTH_CANNY, config.HEIGHT_CANNY))
+
+                            bgr_thresh_high_resized = cv2.copyMakeBorder(bgr_thresh_high_resized,
+                                                                         top=1, bottom=1, left=1, right=1,
+                                                                         borderType = cv2.BORDER_CONSTANT, dst=None,
+                                                                         value=(0,0,255))
+                            bgr_thresh_low_resized = cv2.copyMakeBorder(bgr_thresh_low_resized,
+                                                                         top=1, bottom=1, left=1, right=1,
+                                                                         borderType = cv2.BORDER_CONSTANT, dst=None,
+                                                                         value=(0,0,255))
+                            self.write(bgr_thresh_high_resized, "High threshold",
+                                       (config.WIDTH_CANNY // 2, config.HEIGHT_CANNY),
+                                       (255, 255, 255), 0.4, 1, True)
+                            self.write(bgr_thresh_low_resized, "Low threshold",
+                                       (config.WIDTH_CANNY // 2, config.HEIGHT_CANNY),
+                                       (255, 255, 255), 0.4, 1, True)
+                            off_x = bgr_thresh_high_resized.shape[0]
+                            off_y = bgr_thresh_high_resized.shape[1]
+                            m_frame[5:5 + off_x, 5:5 + off_y] = bgr_thresh_low_resized
+                            # m_frame[m_frame.shape[0]-off_x-5:m_frame.shape[0]-5, 5:5 + off_y] = bgr_thresh_high_resized
+                            m_frame[5:5 + off_x, m_frame.shape[1]-off_y-5:m_frame.shape[1]-5] = bgr_thresh_high_resized
+
+                        # legend = "Binary frame (tentative) from RBG color space thresholding"
+                        # self.write(m_frame, legend, (w // 2, h), fontScale=0.75)
+
+                    elif 14.5 * fps < self.image_counter <= 15.5 * fps:
+                        new_frame = self.apply_gaussian(frame, (7,7), 10)
+                        hsv = cv2.cvtColor(new_frame, cv2.COLOR_BGR2HSV)
+                        m_frame = hsv
+                    elif 15.5 * fps < self.image_counter <= 17 * fps:
+                        new_frame = self.apply_gaussian(frame, (7, 7), 10)
+                        hsv = cv2.cvtColor(new_frame, cv2.COLOR_BGR2HSV)
+                        low_H = 0
+                        low_S = 146
+                        low_V = 62
+                        high_H = 180
+                        high_S = 255
+                        high_V = 255
+                        thresholds = cv2.inRange(hsv, (low_H, low_S, low_V), (high_H, high_S, high_V))
+                        m_frame = cv2.cvtColor(thresholds, cv2.COLOR_GRAY2BGR)
+                        legend = "Binary frame from HSV color space thresholding"
+                        self.write(m_frame, legend, (w // 2, h), fontScale=1)
+                        # cv2.imshow(" test binary", m_frame)
                     elif 17 * fps < self.image_counter <= 20 * fps:
                         # in HSV, grab by the color
                         # use of morphological operations in order to improve grabbing

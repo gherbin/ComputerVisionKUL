@@ -27,8 +27,11 @@ Gaussian vs Bilateral filters
 00:00:12,000 --> 00:00:12,899
 RGB colorspace
 
+00:00:13,000 --> 00:00:13,999
+RGB colorspace grabbing using thresholding (tentative)
+
 9
-00:00:13,000 --> 00:00:13,899
+00:00:14,500 --> 00:00:15,499
 HSV colorspace
 
 10
