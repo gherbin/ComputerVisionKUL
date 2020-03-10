@@ -74,10 +74,12 @@ Same scene, 3 yellow hockey balls
 00:00:43,000 --> 00:00:44,999
 Let's track those balls on fire!
 
+00:00:46,000 --> 00:00:47,999
+tracking: <i>1-nearest</i>: improvements possible, considered out-of-scope
 
 00:00:51,399 --> 00:00:52,999
 <i>Goal Line Assistance </i>
-
+Goal is below the white line
 
 00:00:54,000 --> 00:00:56,999
 Simple hockey rule: ball must cross entirely the line to score

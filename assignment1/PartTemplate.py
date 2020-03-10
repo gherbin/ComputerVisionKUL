@@ -14,6 +14,17 @@ class PartTemplate:
         self.video_writer = video_writer
 
     def write(self, image, text, pos, color=(255, 255, 255), fontScale=1, thickness=1, draw_background=True):
+        """
+        Encapsulation of the cv2.puText function, including shaping and proper organization of text.
+        :param image: image to write text into
+        :param text: text to write in image
+        :param pos: position of the center of the text
+        :param color: color of the text
+        :param fontScale: see cv2.putText
+        :param thickness: see cv2.putText
+        :param draw_background: option to draw (or not) a background, cosmetic
+        :return: nothing
+        """
         if text is None:
             return
 
@@ -28,10 +39,7 @@ class PartTemplate:
         # |
         # |
         # y
-        text_offset_x = 0
-        text_offset_y = 0
-        # print(text_width)
-        # print(text_height)
+
         _x = pos[0] - text_width//2
         _y = pos[1] - text_height//2
         # set the rectangle background to white
@@ -45,11 +53,6 @@ class PartTemplate:
                     fontScale=fontScale,
                     color=color,
                     thickness=thickness)
-        # start_point = (_x,_y)
-        # end_point = (_x + label_size[0][0], _y - label_size[0][1])
-        # print("x => " + str(pos[0]))
-        # print("y => " + str(pos[1]))
-        # image = cv2.rectangle(image, start_point, end_point, (0,255,0), thickness)
 
 
     def display_frames(self, output_shape, frames, subtitles=None):
@@ -69,8 +72,8 @@ class PartTemplate:
         if len(frames) == 4:
             h = output_shape[0] // 2
             w = output_shape[1] // 2
-            # logging.debug("new heigh = " + str(h))
-            # logging.debug("new width = " + str(w))
+            logging.debug("new height = " + str(h))
+            logging.debug("new width = " + str(w))
             l1_resized = cv2.resize(frames[0], (w, h))
             l2_resized = cv2.resize(frames[1], (w, h))
             r1_resized = cv2.resize(frames[2], (w, h))
@@ -89,18 +92,16 @@ class PartTemplate:
         else:
             raise NotImplementedError
 
-
     def imprint_edges(self, frame, order, ksize, scale):
         """
-
+        used in Sobel.
         :param frame: frame on which to imprint the edges
         :param order: parameter of sobel filter
         :param ksize: "
         :param scale: "
-        :return: m_frame, the base frame with color edges imprinted
+        :return: m_frame, the frame with color edges imprinted
         """
         src = cv2.GaussianBlur(frame, (3,3), 0)
-        # src = cv2.medianBlur(frame,5)
         gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
 
         dx = cv2.Sobel(gray,
@@ -120,14 +121,16 @@ class PartTemplate:
 
         mag, orn = cv2.cartToPolar(dx, dy, angleInDegrees=True)
 
+        # thresh param determined visually
         thresh = 50
+        # normalization to have more beautiful colors
+        # offset defined experimentally
         orn_normalized = np.array(((orn - orn.min()) / (orn.max() - orn.min()) * 180 + 30)).astype(np.uint8)
         mag_normalized = np.array(((mag - mag.min()) / (mag.max() - mag.min()) * 255 + 0)).astype(np.uint8)
         mag_normalized[mag_normalized < thresh] = 0
 
         mat0 = orn_normalized
         mat1 = (np.ones(orn.shape) * 255).astype(np.uint8)
-        # print(mat1.max())
         mat2 = mag_normalized
         hsv_edges = np.dstack((mat0, mat1, mat2))
         m_frame = cv2.addWeighted(cv2.cvtColor(hsv_edges, cv2.COLOR_HSV2BGR), 1,
@@ -149,7 +152,7 @@ class PartTemplate:
         minRadius = 15
         maxRadius = 40
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-        # cv2.imshow("HSV", hsv)
+
         low_H = 19
         high_H = 42
         low_S = 165
@@ -163,7 +166,6 @@ class PartTemplate:
             r = cv2.medianBlur(r, 7)
 
         gray = r
-
         circles = cv2.HoughCircles(gray,
                                    cv2.HOUGH_GRADIENT,
                                    dp=dp,
@@ -173,13 +175,5 @@ class PartTemplate:
                                    minRadius=minRadius,
                                    maxRadius=maxRadius)
         if circles is not None:
-            # circles = np.uint16(np.around(circles)
             return True
-            # for i in circles[0, :]:
-            #     center = (i[0], i[1])
-            #     # circle center
-            #     cv2.circle(frame, center, 1, (0, 255, 255), 2)
-            #     # circle outline
-            #     radius = i[2]
-            #     cv2.circle(frame, center, radius, (200, 0, 255), 2)
         return False

@@ -23,7 +23,8 @@ class Part3(PartTemplate):
         """
         Process is the main function of the part2 object, that build the video part required for the second third of
         the output.
-        :return:
+        More information in the assignment statement
+        :return: True
         """
         logging.debug("inside part3.process()")
         # name = self.video_writer.getBackendName()
@@ -42,12 +43,12 @@ class Part3(PartTemplate):
             # logging.debug("ImageCounter => " + str(self.image_counter))
 
             if val == True and self.image_counter <= config.TIME_LIMIT_END * fps:
-                logging.debug("Processed part 3 = " + str(round(100 * self.image_counter / 20 / fps, 2)))
+                logging.debug("Processed part 3 = " + str(round(100 * self.image_counter / 20 / fps, 2))+ " %")
 
                 m_frame = frame
-                # if 0 <= self.image_counter < 1 * fps:
-                #     m_frame = frame
-                if 0 <= self.image_counter < config.PART3_SWITCH_SCENE_0 * fps and \
+                if 0 <= self.image_counter < 1 * fps:
+                    m_frame = frame
+                elif 1 * fps <= self.image_counter < config.PART3_SWITCH_SCENE_0 * fps and \
                         not config.BYPASS_JUGGLE:
                     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
                     # cv2.imshow("HSV", hsv)
@@ -198,7 +199,7 @@ class Part3(PartTemplate):
         return True
 
     def get_circle_id(self, point, point_1, point_2, point_3):
-        print("Points : " + str([point, point_1, point_2, point_3]))
+        logging.debug("Points : " + str([point, point_1, point_2, point_3]))
         id = 0
         point = np.array(point, dtype=float)
         point_1 = np.array(point_1, dtype=float)
@@ -207,7 +208,7 @@ class Part3(PartTemplate):
         dist1 = np.linalg.norm(point - point_1, ord=1)
         dist2 = np.linalg.norm(point - point_2, ord=1)
         dist3 = np.linalg.norm(point - point_3, ord=1)
-        print("Distances : " + str([dist1, dist2, dist3]))
+        logging.debug("Distances : " + str([dist1, dist2, dist3]))
         if dist1 <= dist2 and dist1 <= dist3:
             id = 1
         elif dist2 <= dist1 and dist2 <= dist3:
@@ -215,8 +216,8 @@ class Part3(PartTemplate):
         elif dist3 <= dist2 and dist3 <= dist2:
             id = 3
         else:
-            print("Cannot decide : " + str([dist1, dist2, dist3]))
-        print("ID = " + str(id))
+            logging.info("Cannot decide : " + str([dist1, dist2, dist3]))
+        # print("ID = " + str(id))
         return id
 
     def draw_fire(self, image, template, circle_center, radius_detected):
@@ -249,7 +250,7 @@ class Part3(PartTemplate):
         kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (11, 11))
         closing = cv2.morphologyEx(gray_line, cv2.MORPH_CLOSE, kernel)
         gray_line = np.bitwise_not(closing)
-        cv2.imshow("New_Gray", gray_line)
+        # cv2.imshow("New_Gray", gray_line)
 
         edges = cv2.Canny(gray_line, 100, 200, None, 3)
 

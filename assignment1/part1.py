@@ -9,6 +9,15 @@ from PartTemplate import PartTemplate
 
 class Part1(PartTemplate):
     def add_noise(self, frame, noise_type, mean=0, sigma=50, amplitude=0.5):
+        """
+        Add noise to an image
+        :param frame: the source image on which to add noise
+        :param noise_type: only gaussian noise is implemented so far
+        :param mean: parameter mean of the noise to add
+        :param sigma: parameter sigma of the gaussian noise to add
+        :param amplitude: amplitude of the noise to add
+        :return: the frame with added noise
+        """
         if noise_type == "gauss":
             # start by creating an array of 0 values
             gaussian_noise = np.zeros((frame.shape[0], frame.shape[1]), dtype=np.uint8)
@@ -26,6 +35,10 @@ class Part1(PartTemplate):
             raise NotImplementedError
 
     def apply_gaussian(self,frame, ksize=(5,5), sigmaX=10, sigmaY=0):
+        """
+        Encapsulation of the openCV gaussian Blur with nominal parameter. consult opencv for parameters meaning
+        :return: the image filtered according to "cv2.GaussianBlur"
+        """
         gaussian = cv2.GaussianBlur(src=frame, ksize=ksize, sigmaX=sigmaX, sigmaY=sigmaY)
         return gaussian
 
@@ -33,7 +46,8 @@ class Part1(PartTemplate):
         """
         Process is the main function of the part1 object, that build the video part required for the first third of
         the output.
-        :return:
+        More information in the assignment statement
+        :return: True
         """
         logging.debug("inside part1.process()")
         name = self.video_writer.getBackendName()
@@ -50,7 +64,7 @@ class Part1(PartTemplate):
             m_frame = frame
             if val == True and self.image_counter <= 20 * fps:
                 # cv2.imshow("Test",frame)
-                logging.debug("Processed part 1 = " +str(round(100*self.image_counter / 20/fps,2)))
+                logging.debug("Processed part 1 = " + str(round(100*self.image_counter / 20/fps,2)) + " %")
 
                 if self.image_counter <= 4 * fps:
                     if (self.image_counter // (fps/2)) % 2 == 1:
@@ -319,10 +333,6 @@ class Part1(PartTemplate):
                     m_frame = frame
                     self.write(m_frame, subtitle_text, (w//2, h//2))
 
-                # self.write(m_frame, subtitle_text, (w//2, h))
-                #
-                # Display the image
-                # logging.debug("M_FRAME SHAPE = " + str(m_frame.shape))
                 self.video_writer.write(m_frame)
                 self.image_counter += 1
             else:

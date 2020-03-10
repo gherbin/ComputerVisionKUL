@@ -14,7 +14,8 @@ class Part2(PartTemplate):
         """
         Process is the main function of the part2 object, that build the video part required for the second third of
         the output.
-        :return:
+        More information in the assignment statement
+        :return: True
         """
         logging.debug("inside part2.process()")
         name = self.video_writer.getBackendName()
@@ -33,7 +34,7 @@ class Part2(PartTemplate):
             # logging.debug("ImageCounter => " + str(self.image_counter))
 
             if val == True and self.image_counter <= 20 * fps:
-                logging.debug("Processed part 2 = " + str(round(100 * self.image_counter / 20 / fps, 2)))
+                logging.info("Processed part 2 = " + str(round(100 * self.image_counter / 20 / fps, 2)) + " %")
                 m_frame = frame
                 if self.image_counter <= 5 * fps and not config.BYPASS_SOBEL:
                     m_frame = None
@@ -124,7 +125,7 @@ class Part2(PartTemplate):
                         if circles_detected is not None:
                             circles_detected = np.uint16(np.around(circles_detected))
                             for i in circles_detected[0, :]:
-                                print(i)
+                                # print(i)
                                 center = (i[0], i[1])
                                 # circle center
                                 cv2.circle(m_frame, center, 1, (0, 255, 255), 1)
@@ -163,7 +164,6 @@ class Part2(PartTemplate):
                         if circles_detected is not None:
                             circles_detected = np.uint16(np.around(circles_detected))
                             for i in circles_detected[0, :]:
-                                print(i)
                                 center = (i[0], i[1])
                                 # circle center
                                 cv2.circle(m_frame, center, 1, (0, 255, 255), 1)
@@ -189,7 +189,7 @@ class Part2(PartTemplate):
                         gray = r
                         # cv2.imshow("grayFiltered", gray)
                         edges = cv2.Canny(gray, param1, param1 / 2)
-                        cv2.imshow("canny", edges)
+                        # cv2.imshow("canny", edges)
                         circles_detected = cv2.HoughCircles(gray,
                                                             cv2.HOUGH_GRADIENT,
                                                             dp=dp,
@@ -201,7 +201,6 @@ class Part2(PartTemplate):
                         if circles_detected is not None:
                             circles_detected = np.uint16(np.around(circles_detected))
                             for i in circles_detected[0, :]:
-                                print(i)
                                 center = (i[0], i[1])
                                 # circle center
                                 cv2.circle(m_frame, center, 1, (0, 255, 255), 1)
@@ -249,7 +248,7 @@ class Part2(PartTemplate):
                         # cv2.imshow("Hough", m_frame)
                         self.write(m_frame, legend, (w // 2, h), thickness=2)
 
-                    elif 11 * fps <= self.image_counter <= 15.25 * fps:
+                    elif 11 * fps <= self.image_counter <= 15 * fps:
                         r = gray_not_filtered.copy()
                         r_sharp = gray_not_filtered.copy()
 
@@ -348,8 +347,8 @@ class Part2(PartTemplate):
                                                       (legend_l1, legend_l2, legend_r1, legend_r2))
                         # cv2.imshow("Hough", m_frame)
                         # self.write(m_frame, legend, (w // 2, h), thickness=2)
-                elif 15.25*fps < self.image_counter<=20*fps:
-                    if 15.25*fps < self.image_counter <= 17*fps:
+                elif 15*fps < self.image_counter<=20*fps:
+                    if 15*fps < self.image_counter <= 17*fps:
                         # show object
                         if self.is_object_present(frame):
 
